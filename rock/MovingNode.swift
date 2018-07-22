@@ -13,6 +13,8 @@ class MovingNode {
   let node: SKNode
   let touch: UITouch
   let diff: CGPoint
+  let collisionMask: UInt32
+  var pos: CGPoint
   var time: TimeInterval
   var velocity = [CGVector]()
   static let velocitySamples = 4
@@ -20,25 +22,39 @@ class MovingNode {
   init(node: SKNode, touch: UITouch, in scene: SKNode) {
     self.node = node
     self.touch = touch
-    let pos = touch.location(in: scene)
+    collisionMask = node.physicsBody?.collisionBitMask ?? 0xFFFFFFFF
+    pos = touch.location(in: scene)
     diff = CGPoint(x: node.position.x - pos.x, y: node.position.y - pos.y)
     time = touch.timestamp
-    node.physicsBody?.isDynamic = false
+    if let p = node.physicsBody {
+      p.affectedByGravity = false
+      p.allowsRotation = false
+      p.collisionBitMask = 0
+    }
   }
 
   func update(with touch: UITouch, in scene: SKScene) {
     updateVelocity(of: touch, in: scene)
-    let pos = touch.location(in: scene)
+    pos = touch.location(in: scene)
     node.position = CGPoint(x: pos.x + diff.x, y: pos.y + diff.y)
+    node.physicsBody?.velocity = getVelocity()
     time = touch.timestamp
   }
 
   func release(with touch: UITouch, in scene: SKScene) {
     updateVelocity(of: touch, in: scene)
-    let pos = touch.location(in: scene)
+    pos = touch.location(in: scene)
     node.position = CGPoint(x: pos.x + diff.x, y: pos.y + diff.y)
-    node.physicsBody?.isDynamic = true
-    node.physicsBody?.velocity = getVelocity()
+    if let p = node.physicsBody {
+      p.affectedByGravity = true
+      p.allowsRotation = true
+      p.collisionBitMask = collisionMask
+      p.velocity = getVelocity()
+    }
+  }
+
+  func reposition() {
+    node.position = CGPoint(x: pos.x + diff.x, y: pos.y + diff.y)
   }
 
   private func updateVelocity(of touch: UITouch, in scene: SKScene) {

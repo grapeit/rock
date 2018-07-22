@@ -14,16 +14,22 @@ class GameScene: SKScene {
   private var movingNodes = [MovingNode]()
 
   override func didMove(to view: SKView) {
-
+    for n in self.children {
+      if n.name?.starts(with: "Box") == true {
+        n.physicsBody?.usesPreciseCollisionDetection = true
+      }
+    }
   }
 
   override func update(_ currentTime: TimeInterval) {
-    // Called before each frame is rendered
+    for m in movingNodes {
+      m.reposition()
+    }
   }
 
   func touchDown(_ touch: UITouch) {
     for m in self.nodes(at: touch.location(in: self)) {
-      if m.name?.starts(with: "Object") == true && !movingNodes.contains(where: { $0.node === m }) {
+      if m.name?.starts(with: "Box") == true && !movingNodes.contains(where: { $0.node === m }) {
         movingNodes.append(MovingNode(node: m, touch: touch, in: self))
         break
       }
