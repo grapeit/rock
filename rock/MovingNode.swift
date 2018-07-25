@@ -53,6 +53,15 @@ class MovingNode {
     }
   }
 
+  func release() {
+    guard let p = node.physicsBody else {
+      return
+    }
+    p.affectedByGravity = true
+    p.allowsRotation = true
+    p.collisionBitMask = collisionMask
+  }
+
   func reposition() {
     node.position = CGPoint(x: pos.x + diff.x, y: pos.y + diff.y)
   }
