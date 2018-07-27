@@ -33,7 +33,7 @@ class GameScene: SKScene {
       n.physicsBody?.usesPreciseCollisionDetection = true
     }
 
-    viewWillTransition(to: frame.size)
+    viewWillTransition(to: view.frame.size)
   }
 
   override func update(_ currentTime: TimeInterval) {
